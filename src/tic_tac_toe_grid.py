@@ -28,6 +28,8 @@ def check_winner(board):
         return board[0][0]
     if board[0][2] == board[1][1] == board[2][0] != "-":
         return board[0][2]
+    if "-" not in board[0] and "-" not in board[1] and "-" not in board[2]:
+        return "Draw"
     return None
 
 
@@ -36,9 +38,12 @@ def play_game(get_move: Callable[[str, List[List[str]]], Dict[str, int]]):
     i = 0
     while i < 9:
         winner = check_winner(board)
-        if winner != None:
+        if winner != None and winner != "Draw":
             print("Winner is: ", winner)
-            break
+            return winner
+        elif winner == "Draw":
+            print("It's a draw")
+            return "Draw"
         player = "X" if i % 2 == 0 else "O"
         move = get_move(player, board)
         row = move["row"]

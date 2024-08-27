@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Dict
 from tabulate import tabulate
+from random import choice
 
 from tic_tac_toe_grid import play_game
 
@@ -22,12 +23,60 @@ def q_table():
     print(tabulate(q_table, tablefmt="grid"))
 
 
-def get_move(player: str, board: List[List[str]]):
-    print("Current board status in get move", board)
-    print("Player ", player)
-    row = int(input("Enter row: "))
-    column = int(input("Enter column: "))
-    return {"row": row, "column": column}
+def epsilon_greedy():
+    pass
+
+# here the action is play at a particular position
+# the state is all the available positions on the board
+
+# agent would get +2 reward for the draw and +5 for the win -1 for the loss
+# ghamma is 0.9 cause we value future reward
+# alpha is 0.1 for the learning rate
+
+
+def q_learning(state: Dict[str, int], current_q_value: int):
+    alpha = 0.1
+    gamma = 0.9
+    reward = 0
+    argmax_list = []
+    list_of_available_states = []
+
+    def get_move(player: str, board: List[List[str]]):
+        print("Current board status in get move", board)
+        for i in range(len(board)):
+            for j in range(len(board[i])):
+                if board[i][j] == "-":
+                    list_of_available_states.append({"row": i, "cloumn": j})
+
+        print("List of available states", list_of_available_states)
+        print("Player ", player)
+        row = state["row"]
+        column = state["column"]
+        return {"row": row, "column": column}
+
+    game_status = play_game(get_move)
+    if game_status == "Draw":
+        reward = 2
+    elif game_status == "X":
+        reward = 5
+    elif game_status == "O":
+        reward = -1
+
+    for available_state in list_of_available_states:
+        argmax_list.append(q_learning(
+            state={"row": available_state["row"], "column": available_state["column"]}, current_q_value=0))
+
+    q_value_for_being_in_state = current_q_value + alpha * \
+        (reward + gamma * max(q_learning()) - current_q_value)
+
+    print("Q value for being in state", q_value_for_being_in_state)
+
+    if len(argmax_list) == 0:
+        return q_value_for_being_in_state
+
+
+def argmax(action, state):
+    pass
 
 
 def self_play():
@@ -37,4 +86,4 @@ def self_play():
 
 if __name__ == '__main__':
     # q_table()
-    play_game(get_move)
+    q_learning({"row": 1, "column": 1}, 0)
