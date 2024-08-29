@@ -1,4 +1,4 @@
-from typing import Dict, Callable, List
+from typing import Dict, Callable, List, Generator
 
 
 def tic_tac_toe_grid():
@@ -33,19 +33,18 @@ def check_winner(board):
     return None
 
 
-def play_game(get_move: Callable[[str, List[List[str]]], Dict[str, int]]):
+def play_game() -> Generator[str, Dict[str, int], str]:
     board = tic_tac_toe_grid()
     i = 0
     while i < 9:
         winner = check_winner(board)
         if winner != None and winner != "Draw":
-            print("Winner is: ", winner)
-            return winner
+            yield {"winner": winner, "board": board}
         elif winner == "Draw":
-            print("It's a draw")
-            return "Draw"
+            yield {"winner": "Draw", "board": board}
         player = "X" if i % 2 == 0 else "O"
-        move = get_move(player, board)
+        move = yield {"player": player, "board": board}
+        print("Move is: ", move)
         row = move["row"]
         column = move["column"]
         if (row > 2 or column > 2) or (row < 0 or column < 0):
@@ -53,6 +52,7 @@ def play_game(get_move: Callable[[str, List[List[str]]], Dict[str, int]]):
             return
         if board[row][column] != "-":
             print("position already taken")
+            return
         else:
 
             # play position
@@ -65,4 +65,8 @@ def play_game(get_move: Callable[[str, List[List[str]]], Dict[str, int]]):
 
 
 if __name__ == "__main__":
-    play_game()
+    game = play_game()
+    print(next(game))
+    for i in range(3):
+        for j in range(3):
+            print(game.send({"row": i, "column": j}))

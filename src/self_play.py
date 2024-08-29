@@ -34,45 +34,54 @@ def epsilon_greedy():
 # alpha is 0.1 for the learning rate
 
 
-def q_learning(state: Dict[str, int], current_q_value: int):
+def q_learning(state: Dict[str, int], current_q_value: int, game):
     alpha = 0.1
     gamma = 0.9
     reward = 0
     argmax_list = []
     list_of_available_states = []
 
-    def get_move(player: str, board: List[List[str]]):
-        print("Current board status in get move", board)
-        for i in range(len(board)):
-            for j in range(len(board[i])):
-                if board[i][j] == "-":
-                    list_of_available_states.append({"row": i, "cloumn": j})
+    if game is None:
+        game = play_game()
+        game_status = next(game)
+    else:
+        game_status = game.send(
+            {"row": state["row"], "column": state["column"]})
 
-        print("List of available states", list_of_available_states)
-        print("Player ", player)
-        row = state["row"]
-        column = state["column"]
-        return {"row": row, "column": column}
+    board_status = game_status["board"]
 
-    game_status = play_game(get_move)
-    if game_status == "Draw":
-        reward = 2
-    elif game_status == "X":
-        reward = 5
-    elif game_status == "O":
-        reward = -1
+    for i in range(len(board_status)):
+        for j in range(len(board_status[i])):
+            if board_status[i][j] == "-":
+                if (i, j) != (state["row"], state["column"]):
+                    list_of_available_states.append(
+                        {"row": i, "column": j})
+    if "winner" in game_status:
+        winner = game_status["winner"]
+        if winner == "Draw":
+            reward = 2
+        elif winner == "X":
+            reward = 5
+            
+            return reward
+        elif winner == "O":
+            reward = -5
+        list_of_available_states = []
 
     for available_state in list_of_available_states:
-        argmax_list.append(q_learning(
-            state={"row": available_state["row"], "column": available_state["column"]}, current_q_value=0))
+        print('its coming here')
+        value_to_be_added = q_learning(
+            state={"row": available_state["row"], "column": available_state["column"]}, current_q_value=0, game=game)
+        argmax_list.append(value_to_be_added)
+        # print("Argmax list", argmax_list)
+        # print("len of argmax list", len(argmax_list))
+    # q_value_for_being_in_state = current_q_value + alpha * \
+    #     (reward + gamma * max(argmax_list) - current_q_value)
 
-    q_value_for_being_in_state = current_q_value + alpha * \
-        (reward + gamma * max(q_learning()) - current_q_value)
+    # print("Q value for being in state", q_value_for_being_in_state)
 
-    print("Q value for being in state", q_value_for_being_in_state)
-
-    if len(argmax_list) == 0:
-        return q_value_for_being_in_state
+    # if len(argmax_list) == 0:
+    #     return q_value_for_being_in_state
 
 
 def argmax(action, state):
@@ -86,4 +95,4 @@ def self_play():
 
 if __name__ == '__main__':
     # q_table()
-    q_learning({"row": 1, "column": 1}, 0)
+    q_learning({"row": 1, "column": 1}, 0, game=None)
