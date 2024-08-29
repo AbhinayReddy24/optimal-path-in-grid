@@ -34,11 +34,10 @@ def epsilon_greedy():
 # alpha is 0.1 for the learning rate
 
 
-def q_learning(state: Dict[str, int], current_q_value: int, game):
+def q_learning(state: Dict[str, int], current_q_value: int, game, arg_max_list: List[int]):
     alpha = 0.1
     gamma = 0.9
     reward = 0
-    argmax_list = []
     list_of_available_states = []
 
     if game is None:
@@ -62,7 +61,6 @@ def q_learning(state: Dict[str, int], current_q_value: int, game):
             reward = 2
         elif winner == "X":
             reward = 5
-            
             return reward
         elif winner == "O":
             reward = -5
@@ -71,8 +69,14 @@ def q_learning(state: Dict[str, int], current_q_value: int, game):
     for available_state in list_of_available_states:
         print('its coming here')
         value_to_be_added = q_learning(
-            state={"row": available_state["row"], "column": available_state["column"]}, current_q_value=0, game=game)
-        argmax_list.append(value_to_be_added)
+            state={"row": available_state["row"],
+                   "column": available_state["column"]},
+            current_q_value=0,
+            game=game, arg_max_list=arg_max_list)
+        arg_max_list.append(value_to_be_added)
+        if value_to_be_added is not None:
+            print("Argmax list", arg_max_list)
+            return value_to_be_added
         # print("Argmax list", argmax_list)
         # print("len of argmax list", len(argmax_list))
     # q_value_for_being_in_state = current_q_value + alpha * \
@@ -95,4 +99,4 @@ def self_play():
 
 if __name__ == '__main__':
     # q_table()
-    q_learning({"row": 1, "column": 1}, 0, game=None)
+    q_learning({"row": 1, "column": 1}, 0, game=None, arg_max_list=[])
