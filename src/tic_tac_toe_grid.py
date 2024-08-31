@@ -36,7 +36,7 @@ def check_winner(board):
 def play_game() -> Generator[str, Dict[str, int], str]:
     board = tic_tac_toe_grid()
     i = 0
-    while i < 9:
+    while i <= 9:
         winner = check_winner(board)
         if winner != None and winner != "Draw":
             yield {"winner": winner, "board": board}
@@ -51,7 +51,7 @@ def play_game() -> Generator[str, Dict[str, int], str]:
             print("Invalid input try again")
             return
         if board[row][column] != "-":
-            print("position already taken")
+            print("position already taken", (row, column))
             return
         else:
 

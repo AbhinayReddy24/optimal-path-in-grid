@@ -1,6 +1,7 @@
 from typing import List, Dict
 from tabulate import tabulate
 from random import choice
+import copy
 
 from tic_tac_toe_grid import play_game
 
@@ -43,7 +44,6 @@ def q_learning(state: Dict[str, int], current_q_value: int, game, arg_max_list: 
     if game is None:
         game = play_game()
         game_status = next(game)
-    else:
         game_status = game.send(
             {"row": state["row"], "column": state["column"]})
 
@@ -55,28 +55,37 @@ def q_learning(state: Dict[str, int], current_q_value: int, game, arg_max_list: 
                 if (i, j) != (state["row"], state["column"]):
                     list_of_available_states.append(
                         {"row": i, "column": j})
+    print("List of available states", list_of_available_states)
+
+    if game is not None:
+        for avb_state in list_of_available_states:
+            game_status = game.send(
+                {"row": avb_state["row"], "column": avb_state["column"]})
+            print("Game status", game_status)
+
     if "winner" in game_status:
         winner = game_status["winner"]
         if winner == "Draw":
             reward = 2
         elif winner == "X":
             reward = 5
-            return reward
         elif winner == "O":
             reward = -5
         list_of_available_states = []
+        return reward
+    # if len(list_of_available_states) == 0:
+    #     return 1
 
-    for available_state in list_of_available_states:
-        print('its coming here')
+    # for available_state in list_of_available_states:
         value_to_be_added = q_learning(
             state={"row": available_state["row"],
                    "column": available_state["column"]},
             current_q_value=0,
             game=game, arg_max_list=arg_max_list)
         arg_max_list.append(value_to_be_added)
+        print('value to be added', value_to_be_added)
         if value_to_be_added is not None:
-            print("Argmax list", arg_max_list)
-            return value_to_be_added
+            return 0
         # print("Argmax list", argmax_list)
         # print("len of argmax list", len(argmax_list))
     # q_value_for_being_in_state = current_q_value + alpha * \
