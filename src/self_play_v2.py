@@ -2,6 +2,7 @@ from typing import List, Dict
 from tabulate import tabulate
 import random
 import sys
+import json
 
 from tic_tac_toe_grid import play_game
 
@@ -28,11 +29,11 @@ def q_table_initialization():
 def epsilon_greedy():
     pass
 
-# here the action is play at a particular position
+# here the action is to play at a particular position so you can pretty much neglect the action
 # the state is all the available positions on the board
 
-# agent would get +2 reward for the draw and +5 for the win -1 for the loss
-# ghamma is 0.9 cause we value future reward
+# agent would get +1 reward for the draw and +5 for the win -1 for the loss
+# gamma is 0.9 cause we value future reward
 # alpha is 0.1 for the learning rate
 
 
@@ -65,7 +66,7 @@ def q_learning(list_of_available_states: List[Dict[str, int]],
     alpha = 0.1
     gamma = 0.9
     reward = 0
-    arg_max_list = []
+    # arg_max_list = []
     global total_iterations
     total_iterations += 1  # Increment the global counter
     print("Total iterations:", total_iterations)
@@ -75,13 +76,13 @@ def q_learning(list_of_available_states: List[Dict[str, int]],
         if 'winner' in played_game_status:
             if played_game_status["winner"] == "Draw":
                 print("Draw")
-                return 1
+                return {"reward": 1, "winner_status": "Draw"}
             elif played_game_status["winner"] == "X":
                 print("X wins")
-                return 5
+                return {"reward": 5, "winner_status": "X"}
             elif played_game_status["winner"] == "O":
                 print("O wins")
-                return -1
+                return {"reward": -1, "winner_status": "O"}
 
     list_of_available_states = []
     for i in range(3):
@@ -124,31 +125,34 @@ def q_learning(list_of_available_states: List[Dict[str, int]],
         next_state_q_values = q_learning(list_of_new_unplayed_positions,
                                          list_of_new_played_positions, played_game_status, q_table_to_update)
 
-        q_table_to_update[position_to_update_on_q_table['row']
-                          ][position_to_update_on_q_table['column']] = next_state_q_values
-
-        print(tabulate(q_table_to_update, tablefmt="grid"))
-
         if next_state_q_values is None:
             continue
+        if isinstance(next_state_q_values, dict) and 'reward' in next_state_q_values:
+            reward = next_state_q_values['reward']
+            winner_staus = next_state_q_values['winner_status']
+
+            q_value = current_q_value + alpha * \
+                (reward + gamma * 0 - current_q_value)
+            arg_max_list = []
+            arg_max_list.append(round(q_value, 6))
         else:
-            arg_max_list.append(next_state_q_values)
+            reward = 0
+            arg_max_list = next_state_q_values
+            print('ARg max list', arg_max_list)
+            q_value = current_q_value + alpha * \
+                (reward + gamma * max(arg_max_list) - current_q_value)
 
-        print("Current Q value", current_q_value,
-              'argmax list ', arg_max_list, 'reward', reward)
-        print("Reward", reward, )
-        q_value = current_q_value + alpha * \
-            (reward + gamma * max(arg_max_list) - current_q_value)
+        print("Q VALUE", q_value)
+        arg_max_list.append(round(q_value, 6))
 
-        print("Q value", q_value)
+        q_table_to_update[position_to_update_on_q_table['row']
+                          ][position_to_update_on_q_table['column']] = round(q_value, 6)
+        with open('q_table.json', 'w') as f:
+            json.dump(q_table_to_update, f)
 
-        # print("List of new played positions", list_of_new_played_positions)
-        # print("List of new unplayed positions",
-        #       list_of_new_unplayed_positions)
+        print('updated q table', tabulate(q_table_to_update, tablefmt="grid"))
 
-    q_value = current_q_value + alpha * \
-        (reward + gamma*max(arg_max_list) - current_q_value)
-    return q_value
+    return arg_max_list
 
 
 if __name__ == '__main__':
@@ -160,6 +164,7 @@ if __name__ == '__main__':
         # {'row': 0, 'column': 2},
         # {'row': 0, 'column': 0},
         # {'row': 2, 'column': 2},
+        # {'row': 1, 'column': 2},
     ],
         played_game_status=None,
         q_table_to_update=q_table_to_update)
