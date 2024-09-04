@@ -63,7 +63,7 @@ def q_learning(list_of_available_states: List[Dict[str, int]],
                q_table_to_update,
                ):
 
-    alpha = 0.1
+    alpha = 0.5
     gamma = 0.9
     reward = 0
     # arg_max_list = []
@@ -133,8 +133,9 @@ def q_learning(list_of_available_states: List[Dict[str, int]],
 
             q_value = current_q_value + alpha * \
                 (reward + gamma * 0 - current_q_value)
+            q_value = reward
             arg_max_list = []
-            arg_max_list.append(round(q_value, 6))
+            # arg_max_list.append(round(q_value, 6))
         else:
             reward = 0
             arg_max_list = next_state_q_values
@@ -144,9 +145,12 @@ def q_learning(list_of_available_states: List[Dict[str, int]],
 
         print("Q VALUE", q_value)
         arg_max_list.append(round(q_value, 6))
-
-        q_table_to_update[position_to_update_on_q_table['row']
-                          ][position_to_update_on_q_table['column']] = round(q_value, 6)
+        if len(list_of_available_states) % 2 == 0:
+            q_table_to_update[position_to_update_on_q_table['row']
+                              ][position_to_update_on_q_table['column']] = -round(q_value, 6)
+        else:
+            q_table_to_update[position_to_update_on_q_table['row']
+                              ][position_to_update_on_q_table['column']] = round(q_value, 6)
         with open('q_table.json', 'w') as f:
             json.dump(q_table_to_update, f)
 
@@ -157,13 +161,17 @@ def q_learning(list_of_available_states: List[Dict[str, int]],
 
 if __name__ == '__main__':
     q_table_to_update = q_table_initialization()
+    with open('q_table.json', 'w') as f:
+        json.dump(q_table_to_update, f)
+    with open('q_table.json', 'r') as f:
+        q_table_to_update = json.load(f)
     q_learning(list_of_available_states=[], list_of_played_positions=[
-        # {'row': 1, 'column': 1},
-        # {'row': 0, 'column': 1},
-        # {'row': 2, 'column': 0},
-        # {'row': 0, 'column': 2},
-        # {'row': 0, 'column': 0},
-        # {'row': 2, 'column': 2},
+        {'row': 1, 'column': 1},
+        {'row': 0, 'column': 1},
+        {'row': 2, 'column': 0},
+        {'row': 0, 'column': 2},
+        {'row': 0, 'column': 0},
+        {'row': 2, 'column': 2},
         # {'row': 1, 'column': 2},
     ],
         played_game_status=None,
