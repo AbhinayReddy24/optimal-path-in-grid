@@ -1,7 +1,6 @@
 from typing import List, Dict
 from tabulate import tabulate
 from random import choice
-import copy
 
 from tic_tac_toe_grid import play_game
 

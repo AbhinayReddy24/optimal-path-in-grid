@@ -10,4 +10,12 @@
  - start version control command - git init
 
  - I am too lazy to write project description (code is self explainatory and not super complicated)
+ - Before judging Yes there can be lot of optimizations can be made in the code, 
+   - but my priority is full  implementation
+
+ - Update (08/09/2024) implemented version 3 closer to working compared to v2
+   - issues with version 2 was that it is kind of min max algorithm rather than q learning
+   - now q value is updated for the every move even for the move played by 0
+   - in next update I will try to make it so that q table is updated sperately for X and O 
+   - I think next update should be fully implemented version 
  

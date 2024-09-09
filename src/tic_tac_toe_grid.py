@@ -38,10 +38,8 @@ def play_game() -> Generator[str, Dict[str, int], str]:
     i = 0
     while i <= 9:
         winner = check_winner(board)
-        if winner != None and winner != "Draw":
+        if winner != None:
             yield {"winner": winner, "board": board}
-        elif winner == "Draw":
-            yield {"winner": "Draw", "board": board}
         player = "X" if i % 2 == 0 else "O"
         move = yield {"player": player, "board": board}
         print("Move is: ", move)
