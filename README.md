@@ -12,6 +12,7 @@
  - I am too lazy to write project description (code is self explainatory and not super complicated)
  - Before judging Yes there can be lot of optimizations can be made in the code, 
    - but my priority is full  implementation
+- Project successful commit is for optimal path in the grid
 
  - Update (08/09/2024) implemented version 3 closer to working compared to v2
    - issues with version 2 was that it is kind of min max algorithm rather than q learning
