@@ -21,12 +21,12 @@
    - I think next update should be fully implemented version 
  
  - Update (09/092024) Potential discoveries
-  -  based on the fundamentals position 1,1  is the  position that should maximize the win  chances
-  - if we are following epsilon greedy (not really huge fan) there is no opportunity 
-      for the further more exploration of states that were partial wins 
-      - example: lets say I want to explore 80% of the times when starting out 
-         and for position started with 2,0 had first win after this 20% of the times this move would
-         be picked there is bias towards that particular state (kind of achiving local minima)
-   POTENTIAL FIX: instead of doing e, 1-e in epsilon greedy we can do something like 
+   - based on the fundamentals position 1,1  is the  position that should maximize the win  chances
+   - if we are following epsilon greedy (not really huge fan) there is no opportunity 
+       for the further more exploration of states that were partial wins 
+       - example: lets say I want to explore 80% of the times when starting out 
+          and for position started with 2,0 had first win after this 20% of the times this move would
+          be picked there is bias towards that particular state (kind of achiving local minima)
+       - POTENTIAL FIX: instead of doing e, 1-e in epsilon greedy we can do something like 
                   e(for new exploration), e1-e(re-exploring the successful states),
                   1-e1(explotiating successful state)
