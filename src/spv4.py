@@ -21,7 +21,6 @@ def q_table_initialization():
             q_table[0][column_headers] = "X"
         else:
             q_table[0][column_headers] = "O"
-    # print(tabulate(q_table, tablefmt="grid"))
     return q_table
 
 
@@ -43,7 +42,7 @@ def epsilon_greedy(
                     }
                 )
 
-    epsilon = 0.6
+    epsilon = 0.8
     random_value = round(random.uniform(0, 1), 2)
     possible_state_to_play = ()
     if random_value <= epsilon:
@@ -54,7 +53,6 @@ def epsilon_greedy(
         possible_state_to_play = max_q_value_dict['state']
 
     else:
-        print('list of available states', list_of_available_states)
         possible_state_to_play = random.choice(list_of_available_states)
 
     return {
@@ -157,10 +155,21 @@ def q_learning(
             if played_game_status["winner"] == "Draw":
                 reward = 1
             elif played_game_status["winner"] == "X":
-                reward = 5
+                reward = 100
             elif played_game_status["winner"] == "O":
-                reward = -1
+                reward = -100
             arg_max_list = [0]
+
+            retrieved_position_and_q_value = retrieve_q_value_and_position(
+                {"row": state_to_remove["row"],
+                 "column": state_to_remove["column"]},
+                number_of_played_positions=len(list_of_played_positions),
+                q_table=q_table_to_update,
+            )
+
+            current_q_value = retrieved_position_and_q_value[0]
+            position_to_update_on_q_table = retrieved_position_and_q_value[1]
+
             q_value = current_q_value + alpha * \
                 (reward + gamma * max(arg_max_list) - current_q_value)
 
@@ -179,7 +188,7 @@ def q_learning(
             arg_max_list.extend(remaining_positons)
             return arg_max_list
 
-        if (len(list_of_available_states) != 0):
+        if (len(list_of_available_states) != 0 and 'winner' not in played_game_status):
 
             remove_o_move = list_of_available_states.pop(0)
 
@@ -196,6 +205,36 @@ def q_learning(
                     "column": remove_o_move["column"]
                 }
             )
+
+            if "winner" in played_game_status:
+                if played_game_status["winner"] == "Draw":
+                    reward = 1
+                elif played_game_status["winner"] == "X":
+                    reward = 100
+                elif played_game_status["winner"] == "O":
+                    reward = -100
+                arg_max_list = [0]
+
+                if reward == -100:
+                    retrieved_position_and_q_value = retrieve_q_value_and_position(
+                        {"row": state_to_remove["row"],
+                         "column": state_to_remove["column"]},
+                        number_of_played_positions=len(
+                            list_of_played_positions) - 1,
+                        q_table=q_table_to_update,
+                    )
+
+                    current_q_value = retrieved_position_and_q_value[0]
+                    position_to_update_on_q_table = retrieved_position_and_q_value[1]
+
+                    q_value = current_q_value + alpha * \
+                        (reward + gamma * max(arg_max_list) - current_q_value)
+
+                    q_table_to_update[position_to_update_on_q_table['row']
+                                      ][position_to_update_on_q_table['column']] = round(q_value, 6)
+                    arg_max_list = [q_value]
+
+                    return arg_max_list
 
     copy_of_played_positions = list_of_played_positions.copy()
 
